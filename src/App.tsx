@@ -600,6 +600,20 @@ function App() {
       }
 
       try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480, facingMode: 'user' },
+          audio: false,
+        })
+
+        const video = videoRef.current
+        if (!video) return
+        video.srcObject = stream
+        await video.play()
+
+        if (cancelled) return
+        setCameraStatus('ready')
+        setCameraMessage(text.cameraBoot)
+
         const vision = await FilesetResolver.forVisionTasks(
           'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm',
         )
@@ -614,18 +628,7 @@ function App() {
           runningMode: 'VIDEO',
         })
 
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: 'user' },
-          audio: false,
-        })
-
-        const video = videoRef.current
-        if (!video) return
-        video.srcObject = stream
-        await video.play()
-
         if (cancelled) return
-        setCameraStatus('ready')
         setCameraMessage(text.ready)
 
         const tick = () => {
